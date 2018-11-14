@@ -2138,6 +2138,16 @@
                 "offeryear"
             ],
             [
+                "change_educationgroup",
+                "base",
+                "educationgroup"
+            ],
+            [
+                "change_educationgroupyear",
+                "base",
+                "educationgroupyear"
+            ],
+            [
                 "is_administrator",
                 "base",
                 "person"
@@ -2351,6 +2361,21 @@
                 "delete_propositionrole",
                 "dissertation",
                 "propositionrole"
+            ],
+            [
+                "add_topiceducationgroup",
+                "dissertation",
+                "topiceducationgroup"
+            ],
+            [
+                "change_topiceducationgroup",
+                "dissertation",
+                "topiceducationgroup"
+            ],
+            [
+                "delete_topiceducationgroup",
+                "dissertation",
+                "topiceducationgroup"
             ],
             [
                 "change_messagehistory",
@@ -2978,6 +3003,11 @@
                 "externallearningunityear"
             ],
             [
+                "add_externallearningunityear",
+                "base",
+                "externallearningunityear"
+            ],
+            [
                 "can_create_learningunit",
                 "base",
                 "learningunit"
@@ -3066,6 +3096,16 @@
                 "delete_proposallearningunit",
                 "base",
                 "proposallearningunit"
+            ],
+            [
+                "can_manage_charge_repartition",
+                "base",
+                "person"
+            ],
+            [
+                "can_manage_attribution",
+                "base",
+                "person"
             ]
         ]
     }
@@ -3142,6 +3182,11 @@
             ],
             [
                 "can_access_externallearningunityear",
+                "base",
+                "externallearningunityear"
+            ],
+            [
+                "add_externallearningunityear",
                 "base",
                 "externallearningunityear"
             ],
@@ -3249,6 +3294,16 @@
                 "add_externallearningunityear",
                 "base",
                 "externallearningunityear"
+            ],
+            [
+                "can_manage_charge_repartition",
+                "base",
+                "person"
+            ],
+            [
+                "can_manage_attribution",
+                "base",
+                "person"
             ]
         ]
     }
