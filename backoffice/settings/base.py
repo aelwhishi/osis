@@ -116,6 +116,7 @@ APPS_TO_TEST = (
 TEST_RUNNER = os.environ.get('TEST_RUNNER', 'osis_common.tests.runner.InstalledAppsTestRunner')
 SKIP_QUEUES_TESTS = os.environ.get('SKIP_QUEUES_TESTS', 'False').lower() == 'true'
 QUEUES_TESTING_TIMEOUT = float(os.environ.get('QUEUES_TESTING_TIMEOUT', 0.1))
+TESTS_TYPES = os.environ.get('TESTS_TYPES', 'UNIT').upper()
 
 TEMPLATES = [
     {
@@ -432,3 +433,6 @@ REQUESTS_TIMEOUT = 20
 URL_TO_PORTAL_UCL = os.environ.get("URL_TO_PORTAL_UCL", "https://uclouvain.be/prog-{anac}{type}-{code}")
 REFRESH_PARAM = os.environ.get("REFRESH_PARAM", "")
 GET_SECTION_PARAM = os.environ.get("GET_SECTION_PARAM", "")
+
+if TESTING and TESTS_TYPES in ('ALL', 'SELENIUM'):
+    from .functional_tests import *
