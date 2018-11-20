@@ -10,7 +10,7 @@ venv/
 __pycache__/
 backoffice/server_settings.py
 /base/tests/sent_mails
-geckodriver
+/base/tests/functional
 /reports
 .project
 .settings

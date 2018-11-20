@@ -436,3 +436,5 @@ GET_SECTION_PARAM = os.environ.get("GET_SECTION_PARAM", "")
 
 if TESTING and TESTS_TYPES in ('ALL', 'SELENIUM'):
     from .functional_tests import *
+
+YEAR_LIMIT_LUE_MODIFICATION = int(os.environ.get("YEAR_LIMIT_LUE_MODIFICATION", 2018))
