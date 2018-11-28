@@ -132,11 +132,18 @@ class LearningUnitsMixin:
         return result
 
     @staticmethod
-    def setup_learning_unit_year(academic_year, learning_unit, learning_container_year, learning_unit_year_subtype,
-                                 periodicity):
+    def setup_learning_unit_year(
+            academic_year,
+            learning_unit,
+            learning_container_year,
+            learning_unit_year_subtype,
+            periodicity):
+
         create = False
         result = None
+
         end_year = learning_unit.end_year or compute_max_academic_year_adjournment()
+
         if learning_unit.start_year <= academic_year.year <= end_year:
             if periodicity == learning_unit_year_periodicity.BIENNIAL_ODD:
                 if not (academic_year.year % 2):
