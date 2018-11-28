@@ -20,11 +20,8 @@ msgstr ""
 #: templates/online_encoding.html:290
 #, fuzzy, python-format
 msgid ""
-"\n"
-"                        You will submit %(draft_scores_not_submitted)s notes "
-"to faculty(ies). Warning : submitted scores <b>can't be modified anymore.</"
-"b>\n"
-"                    "
+"You will submit %(draft_scores_not_submitted)s notes "
+"to faculty(ies). Warning : submitted scores <b>can't be modified anymore.</b>"
 msgstr ""
 "Vous soumettrez %(draft_scores_not_submitted)s notes au(x) faculté(s). "
 "Attention : les notes soumises <b>ne peuvent plus être modifiées.</b>"

@@ -246,11 +246,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         start_date = timezone.now() + datetime.timedelta(days=20)
 
-        print(start_date)
-
         academic_year = AcademicYearFactory(year=pendulum.today().year)
-
-        print(academic_year)
 
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(
             academic_year=academic_year,
@@ -258,8 +254,6 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
             end_date=start_date + datetime.timedelta(days=10),
         )
         academic_calendar.save()
-
-        print(academic_calendar)
 
         person = PersonFactory(user=user, language='fr-be')
         offer_year = OfferYearFactory(academic_year=academic_year)
@@ -343,48 +337,78 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         learning_unit3 = LearningUnitFactory()
         learning_unit_year_3 = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit3)
 
-        learning_unit_enrollment1 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment2 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment2, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment3 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment3, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment1 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1,
+                                                                  learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment2 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment2,
+                                                                  learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment3 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment3,
+                                                                  learning_unit_year=learning_unit_year_1)
 
-        learning_unit_enrollment10 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment10, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment11 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment11, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment12 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment12, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment13 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment13, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment14 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment14, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment15 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment15, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment16 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment16, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment10 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment10,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment11 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment11,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment12 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment12,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment13 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment13,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment14 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment14,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment15 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment15,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment16 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment16,
+                                                                   learning_unit_year=learning_unit_year_1)
 
-        learning_unit_enrollment4 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment4, learning_unit_year=learning_unit_year_2)
-        learning_unit_enrollment5 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year_2)
+        learning_unit_enrollment4 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment4,
+                                                                  learning_unit_year=learning_unit_year_2)
+        learning_unit_enrollment5 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5,
+                                                                  learning_unit_year=learning_unit_year_2)
 
-        learning_unit_enrollment6 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year_3)
-        learning_unit_enrollment7 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year_3)
+        learning_unit_enrollment6 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1,
+                                                                  learning_unit_year=learning_unit_year_3)
+        learning_unit_enrollment7 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5,
+                                                                  learning_unit_year=learning_unit_year_3)
 
         session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
 
-        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
+        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1,
+                                                   number_session=session_exam_calendar.number_session,
+                                                   offer_year=offers['PHYS11BA'])
 
-        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
+        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2,
+                                                  number_session=session_exam_calendar.number_session,
+                                                  offer_year=offers['ECON2M1'])
 
-        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
-        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
+        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3,
+                                            number_session=session_exam_calendar.number_session,
+                                            offer_year=offers['ECON2M1'])
+        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3,
+                                            number_session=session_exam_calendar.number_session,
+                                            offer_year=offers['PHYS11BA'])
 
-        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['PHYS11BA'])
-        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['ECON2M1'])
+        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar,
+                                                       offer_year=offers['PHYS11BA'])
+        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar,
+                                                       offer_year=offers['ECON2M1'])
 
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment1, session_exam=session_exam_phys11ba)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment2, session_exam=session_exam_phys11ba)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment3, session_exam=session_exam_phys11ba)
 
-        exam_enrollment_10 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment10, session_exam=session_exam_phys11ba)
-        exam_enrollment_11 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment11, session_exam=session_exam_phys11ba)
-        exam_enrollment_12 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment12, session_exam=session_exam_phys11ba)
-        exam_enrollment_13 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment13, session_exam=session_exam_phys11ba)
-        exam_enrollment_14 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment14, session_exam=session_exam_phys11ba)
-        exam_enrollment_15 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment15, session_exam=session_exam_phys11ba)
-        exam_enrollment_16 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment16, session_exam=session_exam_phys11ba)
-
+        exam_enrollment_10 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment10,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_11 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment11,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_12 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment12,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_13 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment13,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_14 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment14,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_15 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment15,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_16 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment16,
+                                                   session_exam=session_exam_phys11ba)
 
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment4, session_exam=session_exam_econ2m1)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment5, session_exam=session_exam_econ2m1)
@@ -753,54 +777,83 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         learning_unit3 = LearningUnitFactory()
         learning_unit_year_3 = LearningUnitYearFactory(academic_year=academic_year, learning_unit=learning_unit3)
 
-        learning_unit_enrollment1 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment2 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment2, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment3 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment3, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment1 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1,
+                                                                  learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment2 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment2,
+                                                                  learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment3 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment3,
+                                                                  learning_unit_year=learning_unit_year_1)
 
-        learning_unit_enrollment10 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment10, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment11 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment11, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment12 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment12, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment13 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment13, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment14 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment14, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment15 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment15, learning_unit_year=learning_unit_year_1)
-        learning_unit_enrollment16 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment16, learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment10 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment10,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment11 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment11,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment12 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment12,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment13 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment13,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment14 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment14,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment15 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment15,
+                                                                   learning_unit_year=learning_unit_year_1)
+        learning_unit_enrollment16 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment16,
+                                                                   learning_unit_year=learning_unit_year_1)
 
-        learning_unit_enrollment4 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment4, learning_unit_year=learning_unit_year_2)
-        learning_unit_enrollment5 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year_2)
+        learning_unit_enrollment4 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment4,
+                                                                  learning_unit_year=learning_unit_year_2)
+        learning_unit_enrollment5 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5,
+                                                                  learning_unit_year=learning_unit_year_2)
 
-        learning_unit_enrollment6 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1, learning_unit_year=learning_unit_year_3)
-        learning_unit_enrollment7 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5, learning_unit_year=learning_unit_year_3)
+        learning_unit_enrollment6 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment1,
+                                                                  learning_unit_year=learning_unit_year_3)
+        learning_unit_enrollment7 = LearningUnitEnrollmentFactory(offer_enrollment=offer_enrollment5,
+                                                                  learning_unit_year=learning_unit_year_3)
 
         session_exam_calendar = SessionExamCalendarFactory(academic_calendar=academic_calendar)
 
-        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
-        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
+        session_exam_phys11ba = SessionExamFactory(learning_unit_year=learning_unit_year_1,
+                                                   number_session=session_exam_calendar.number_session,
+                                                   offer_year=offers['PHYS11BA'])
+        session_exam_econ2m1 = SessionExamFactory(learning_unit_year=learning_unit_year_2,
+                                                  number_session=session_exam_calendar.number_session,
+                                                  offer_year=offers['ECON2M1'])
 
-        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['ECON2M1'])
-        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3, number_session=session_exam_calendar.number_session, offer_year=offers['PHYS11BA'])
+        session_exam_3 = SessionExamFactory(learning_unit_year=learning_unit_year_3,
+                                            number_session=session_exam_calendar.number_session,
+                                            offer_year=offers['ECON2M1'])
+        session_exam_4 = SessionExamFactory(learning_unit_year=learning_unit_year_3,
+                                            number_session=session_exam_calendar.number_session,
+                                            offer_year=offers['PHYS11BA'])
 
-        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['PHYS11BA'])
-        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offers['ECON2M1'])
+        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar,
+                                                       offer_year=offers['PHYS11BA'])
+        offer_year_calendar = OfferYearCalendarFactory(academic_calendar=academic_calendar,
+                                                       offer_year=offers['ECON2M1'])
 
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment1, session_exam=session_exam_phys11ba)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment2, session_exam=session_exam_phys11ba)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment3, session_exam=session_exam_phys11ba)
 
-        exam_enrollment_10 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment10, session_exam=session_exam_phys11ba)
-        exam_enrollment_11 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment11, session_exam=session_exam_phys11ba)
-        exam_enrollment_12 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment12, session_exam=session_exam_phys11ba)
-        exam_enrollment_13 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment13, session_exam=session_exam_phys11ba)
-        exam_enrollment_14 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment14, session_exam=session_exam_phys11ba)
-        exam_enrollment_15 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment15, session_exam=session_exam_phys11ba)
-        exam_enrollment_16 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment16, session_exam=session_exam_phys11ba)
-
+        exam_enrollment_10 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment10,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_11 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment11,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_12 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment12,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_13 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment13,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_14 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment14,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_15 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment15,
+                                                   session_exam=session_exam_phys11ba)
+        exam_enrollment_16 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment16,
+                                                   session_exam=session_exam_phys11ba)
 
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment4, session_exam=session_exam_econ2m1)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment5, session_exam=session_exam_econ2m1)
 
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment6, session_exam=session_exam_3)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment7, session_exam=session_exam_4)
-
 
         self.login(user.username)
 
@@ -820,6 +873,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.assertElementTextEqualInt('scores_encoding_learning_units', 3)
         self.assertEqual(len(all_options - {'Tout'}), 5)
 
+        time.sleep(1)
         self.click_on('lnk_encode_{}'.format(learning_unit_year_1.id))
         self.assertElementTextEqualInt('number_of_enrollments', 10)
 
@@ -832,6 +886,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
             self.fill_by_id(element_id, counter)
             note_enrollments[enrollment_id] = counter
 
+        time.sleep(1)
         self.click_on('bt_save_online_encoding_up')
 
         self.assertElementTextEqual('luy_progression', '10 / 10')
@@ -846,10 +901,14 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.click_on('bt_compare_up')
 
+        time.sleep(1)
+
         self.driver.execute_script("scroll(0, document.body.scrollHeight)")
 
         for enrollment_id in note_enrollments:
             self.click_on('bt_take_reencoded_{}'.format(enrollment_id))
+
+        time.sleep(1)
 
         self.click_on('bt_submit_online_double_encoding_validation')
 
@@ -1032,7 +1091,6 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         OfferYearCalendarFactory(academic_calendar=academic_calendar, offer_year=offer_year)
 
-        # unité d'enseignement = learning_unit_year
         learning_unit_year = LearningUnitYearFactory(academic_year=academic_year)
 
         AttributionFactory(
@@ -1049,6 +1107,7 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.goto('scores_encoding')
 
+        time.sleep(1)
         self.click_on('lnk_encode_{}'.format(learning_unit_year.id))
         self.assertElementTextEqualInt('number_of_enrollments', len(exam_enrollments))
 
@@ -1062,7 +1121,6 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
             note_enrollments[enrollment_id] = counter
 
         self.click_on('bt_save_online_encoding_up')
-
 
         score_encoding = ScoresEncodingPage(self.driver, base_url=self.get_url_by_name('scores_encoding')).open()
         time.sleep(1)
@@ -1109,7 +1167,8 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
     @classmethod
     def create_academic_year_calendar(self, year=None, start_date=None, days=None):
         if year is None:
-            year = pendulum.today().year - 1
+            # TO REFACTOR
+            year = pendulum.today().year
 
         academic_year = AcademicYearFactory(year=year)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
