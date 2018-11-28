@@ -5,6 +5,7 @@ import random
 import shutil
 import tempfile
 import time
+from time import sleep
 from urllib import request
 
 import faker
@@ -194,7 +195,7 @@ class SeleniumTestCase(StaticLiveServerTestCase):
 class FunctionalTest(SeleniumTestCase, BusinessMixin):
     def test_01_scenario_modifier_periode_encoding(self):
         user = self.create_super_user()
-        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
+        academic_year = AcademicYearFactory(year=pendulum.today().year)
         academic_calendar = AcademicCalendarFactory.build(academic_year=academic_year)
         academic_calendar.save()
         self.login(user.username)
@@ -216,7 +217,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
     def test_02_scenario_modifier_period_encoding_date_fin(self):
         user = self.create_super_user()
-        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
+        academic_year = AcademicYearFactory(year=pendulum.today().year)
         academic_calendar = AcademicCalendarFactory.build(academic_year=academic_year)
         academic_calendar.save()
 
@@ -283,7 +284,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.add_group(user, 'program_managers')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
 
-        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
+        academic_year = AcademicYearFactory(year=pendulum.today().year)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
         academic_calendar.save()
 
@@ -410,11 +411,6 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         # self.assertEqual(progression, '0 / 10')
 
         self.assertFalse(learning_unit_year_1.decimal_scores)
-        self.assertElementTextEqual(
-            'message_decimal_accepted',
-            "Les notes de ce cours ne peuvent PAS recevoir de valeurs décimales."
-        )
-
         self.assertElementTextEqualInt('number_of_enrollments', 10)
 
         the_first = 1
@@ -474,7 +470,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.add_group(user, 'program_managers', 'tutors')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
 
-        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
+        academic_year = AcademicYearFactory(year=pendulum.today().year)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
         academic_calendar.save()
 
@@ -685,7 +681,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.add_group(user, 'program_managers', 'tutors')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
 
-        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
+        academic_year = AcademicYearFactory(year=pendulum.today().year)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
         academic_calendar.save()
 
@@ -865,7 +861,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         self.add_group(user, 'program_managers', 'tutors')
         self.add_permission(user, 'can_access_academic_calendar', 'assessments.can_access_scoreencoding')
 
-        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
+        academic_year = AcademicYearFactory(year=pendulum.today().year)
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(academic_year=academic_year)
         academic_calendar.save()
 
