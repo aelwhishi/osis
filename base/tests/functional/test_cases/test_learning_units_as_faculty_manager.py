@@ -11,7 +11,7 @@ class DayToDayManagementLearningUnitsAsFacultyManager(FunctionalTestCase, FacAdm
     def setUp(self):
         super(DayToDayManagementLearningUnitsAsFacultyManager, self).setUp()
         self.faculty_administrator = self.create_fac_admin()
-        self.academic_years = CommonMixin.init_academic_years(2007,20)
+        self.academic_years = CommonMixin.init_academic_years(2007, 20)
         self.login(self.faculty_administrator.user.username)
         self.open_url_by_name('home')
 
@@ -38,7 +38,6 @@ class DayToDayManagementLearningUnitsAsFacultyManager(FunctionalTestCase, FacAdm
         # And the search form is empty
 
         # Except for the academic year, which is pre-selected
-
 
         # If I click on the search button
         self.click_element_by_id('search_button')

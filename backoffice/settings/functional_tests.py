@@ -2,7 +2,7 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-### Fucntional Tests settings
+# Fucntional Tests settings
 FUNCT_TESTS_CONFIG = {
     'DEFAULT_WAITING_TIME': int(os.environ.get('FT_DEFAULT_WAITING_TIME', 10)),
     'BROWSER': os.environ.get('FT_BROWSER', 'FIREFOX'),
