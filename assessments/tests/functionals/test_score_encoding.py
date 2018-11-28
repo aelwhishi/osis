@@ -10,6 +10,7 @@ from urllib import request
 import faker
 import magic
 import pendulum
+import pypom
 from django.conf import settings
 from django.contrib.auth.models import Group, Permission
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
@@ -42,6 +43,41 @@ from base.tests.factories.session_examen import SessionExamFactory
 from base.tests.factories.student import StudentFactory
 from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
+
+from django.utils.translation import ugettext_lazy as _
+
+
+class Field:
+    def __init__(self, *locator):
+        self.locator = locator
+
+
+class InputField(Field):
+    def __set__(self, obj, value):
+        element = obj.find_element(*self.locator)
+        element.clear()
+        if value is not None:
+            element.send_keys(value)
+
+    def __get__(self, obj, owner):
+        element = obj.find_element(*self.locator)
+        return element.get_attribute('value')
+
+
+class SubmitField(Field):
+    def __get__(self, obj, owner):
+        return obj.find_element(*self.locator)
+
+
+class ScoresEncodingPage(pypom.Page):
+    acronym = InputField(By.ID, 'txt_acronym')
+    search_button = SubmitField(By.ID, 'bt_submit_offer_search')
+    via_paper = SubmitField(By.ID, 'lnk_via_paper')
+
+    def search(self, acronym=None):
+        self.acronym = acronym
+
+        self.search_button.click()
 
 
 class BusinessMixin:
@@ -178,7 +214,7 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.assertElementTextEqual('ac_start_date', new_date_str)
 
-    def test_01_scenario_modifier_period_encoding_date_fin(self):
+    def test_02_scenario_modifier_period_encoding_date_fin(self):
         user = self.create_super_user()
         academic_year = AcademicYearFactory(year=pendulum.today().year-1)
         academic_calendar = AcademicCalendarFactory.build(academic_year=academic_year)
@@ -200,14 +236,18 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.assertElementTextEqual('ac_end_date', new_date_str)
 
-    def test_03(self):
+    def test_03_warning_start_date(self):
         user = self.create_user()
         self.add_group(user, 'program_managers')
         self.add_permission(user, 'assessments.can_access_scoreencoding')
 
         start_date = timezone.now() + datetime.timedelta(days=20)
 
-        academic_year = AcademicYearFactory(year=pendulum.today().year-1)
+        print(start_date)
+
+        academic_year = AcademicYearFactory(year=pendulum.today().year)
+
+        print(academic_year)
 
         academic_calendar = AcademicCalendarExamSubmissionFactory.build(
             academic_year=academic_year,
@@ -215,6 +255,8 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
             end_date=start_date + datetime.timedelta(days=10),
         )
         academic_calendar.save()
+
+        print(academic_calendar)
 
         person = PersonFactory(user=user, language='fr-be')
         offer_year = OfferYearFactory(academic_year=academic_year)
@@ -231,8 +273,9 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         self.assertEqual(
             warning_messages.text,
-            "La période d'encodage des notes pour la session {} sera ouverte à partir du {}".
-                format(str(sec.number_session), academic_calendar.start_date.strftime('%d/%m/%Y'))
+            _("The period of scores' encoding %(session_number)s will be open %(str_date)s")
+            % {'session_number': str(sec.number_session),
+               'str_date': academic_calendar.start_date.strftime('%d/%m/%Y')}
         )
 
     def test_04(self):
@@ -1103,35 +1146,3 @@ class Scenario7FunctionalTest(SeleniumTestCase, BusinessMixin):
                 ProgramManagerFactory(offer_year=offer, person=person)
 
         return offers
-
-
-import pypom
-
-class Field:
-    def __init__(self, *locator):
-        self.locator = locator
-
-class InputField(Field):
-    def __set__(self, obj, value):
-        element = obj.find_element(*self.locator)
-        element.clear()
-        if value is not None:
-            element.send_keys(value)
-
-    def __get__(self, obj, owner):
-        element = obj.find_element(*self.locator)
-        return element.get_attribute('value')
-
-class SubmitField(Field):
-    def __get__(self, obj, owner):
-        return obj.find_element(*self.locator)
-
-class ScoresEncodingPage(pypom.Page):
-    acronym = InputField(By.ID, 'txt_acronym')
-    search_button = SubmitField(By.ID, 'bt_submit_offer_search')
-    via_paper = SubmitField(By.ID, 'lnk_via_paper')
-
-    def search(self, acronym=None):
-        self.acronym = acronym
-
-        self.search_button.click()
