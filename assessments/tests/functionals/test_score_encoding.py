@@ -47,7 +47,7 @@ from base.tests.factories.user import SuperUserFactory, UserFactory
 
 from django.utils.translation import ugettext_lazy as _
 
-from models.enums import exam_enrollment_justification_type
+from base.models.enums import exam_enrollment_justification_type
 
 
 class Field:
