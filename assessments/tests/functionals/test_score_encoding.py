@@ -5,7 +5,7 @@ import random
 import shutil
 import tempfile
 import time
-from time import sleep
+
 from urllib import request
 
 import faker
@@ -46,6 +46,8 @@ from base.tests.factories.tutor import TutorFactory
 from base.tests.factories.user import SuperUserFactory, UserFactory
 
 from django.utils.translation import ugettext_lazy as _
+
+from models.enums import exam_enrollment_justification_type
 
 
 class Field:
@@ -579,7 +581,6 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
         exam_enrollment_15 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment15, session_exam=session_exam_phys11ba)
         exam_enrollment_16 = ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment16, session_exam=session_exam_phys11ba)
 
-
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment4, session_exam=session_exam_econ2m1)
         ExamEnrollmentFactory(learning_unit_enrollment=learning_unit_enrollment5, session_exam=session_exam_econ2m1)
 
@@ -630,7 +631,8 @@ class FunctionalTest(SeleniumTestCase, BusinessMixin):
 
         for enrollment_id, (key, value) in updated_values.items():
             element_id = 'enrollment_{}_{}'.format(key, enrollment_id)
-            value = {'T': 'Tricherie', 'A': 'Absence injustifiée'}.get(value, value)
+            value = {'T': exam_enrollment_justification_type.CHEATING,
+                     'A': exam_enrollment_justification_type.ABSENCE_UNJUSTIFIED}.get(value, value)
 
             self.assertElementTextEqual(element_id, str(value))
 

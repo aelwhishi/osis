@@ -24,7 +24,7 @@
 #
 ##############################################################################
 from faker import Faker
-import factory
+
 import factory.fuzzy
 import string
 

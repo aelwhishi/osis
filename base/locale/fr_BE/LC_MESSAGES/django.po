@@ -772,7 +772,7 @@ msgstr "Attestation de réussite"
 
 #: models/enums/exam_enrollment_justification_type.py:43
 msgid "Cheating"
-msgstr "Triche"
+msgstr "Tricherie"
 
 #: forms/learning_unit/comparison.py:52
 msgid "Choose academic years"

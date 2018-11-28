@@ -170,7 +170,7 @@
                                     <option value="ABSENCE_UNJUSTIFIED" {% if enrollment.post_justification_encoded == 'ABSENCE_UNJUSTIFIED' %}selected{% endif %} >{% trans 'Unjustified absence' %}</option>
                                     <option value="ABSENCE_JUSTIFIED" {% if enrollment.post_justification_encoded == 'ABSENCE_JUSTIFIED' %}selected{% endif %} >{% trans 'Justified absence' %}</option>
                                 {% else %}
-                                    <option value="ABSENCE_UNJUSTIFIED" {% if enrollment.post_justification_encoded == 'ABSENCE_UNJUSTIFIED' %}selected{% endif %}>{% trans 'Absent' %}</option>
+                                    <option value="ABSENCE_UNJUSTIFIED" {% if enrollment.post_justification_encoded == 'ABSENCE_UNJUSTIFIED' %}selected{% endif %}>{% trans 'Unjustified absence' %}</option>
                                 {% endif %}
                                 <option value="CHEATING" {% if enrollment.post_justification_encoded == 'CHEATING' %}selected{% endif %}>{% trans 'Cheating' %}</option>
                             </select>

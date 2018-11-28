@@ -367,14 +367,14 @@ def _get_justification_from_aliases(enrollment, justification_encoded):
         _check_is_user_try_change_justified_to_unjustified_absence(enrollment, justification)
         return justification
     else:
-        raise UploadValueError('%s' % _("Invalid justification value"), messages.ERROR)
+        raise UploadValueError(_("Invalid justification value"), messages.ERROR)
 
 
 def _check_is_user_try_change_justified_to_unjustified_absence(enrollment, justification):
     if justification == justification_types.ABSENCE_UNJUSTIFIED and \
        enrollment.justification_final == justification_types.ABSENCE_JUSTIFIED:
             raise UploadValueError(
-                '%s' % _("Absence justified cannot be remplaced by absence unjustified"), messages.ERROR)
+                _("Absence justified cannot be remplaced by absence unjustified"), messages.ERROR)
 
 
 def _show_error_messages(request, errors_list):
