@@ -10,7 +10,7 @@ venv/
 __pycache__/
 backoffice/server_settings.py
 /base/tests/sent_mails
-/base/tests/functional
+/base/tests/functional/drivers
 /reports
 .project
 .settings
