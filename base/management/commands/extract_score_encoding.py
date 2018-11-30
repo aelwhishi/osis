@@ -66,8 +66,10 @@ def _extract_program_managers_to_xls():
     worksheet.append(["Faculté de l'entité de gestion", 'Entité de gestion', 'Sigle', 'Intitulé', 'Nom', 'Prénom'])
     for program_manager in qs_list:
         row = [
-            program_manager.offer_year.entity_management_fac.acronym,
-            program_manager.offer_year.entity_management.acronym,
+            program_manager.offer_year.entity_management_fac.acronym
+            if program_manager.offer_year.entity_management_fac else '',
+            program_manager.offer_year.entity_management.acronym
+            if program_manager.offer_year.entity_management else '',
             program_manager.offer_year.acronym,
             program_manager.offer_year.title,
             program_manager.person.last_name,
