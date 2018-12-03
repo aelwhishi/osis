@@ -40,7 +40,7 @@ from base.models.program_manager import ProgramManager
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-        _extract_program_managers_to_xls()
+        #_extract_program_managers_to_xls()
         _extract_learning_unit_with_score_responsible()
 
 
@@ -135,8 +135,8 @@ def _extract_learning_unit_with_score_responsible():
                 code,
                 type,
                 intitule,
-                '\n'.join(tutors),
-                '\n'.join(score_responsibles),
+                "\n".join(tutors),
+                "\n".join(score_responsibles),
             )
 
     # Resolve classe requirement faculty
@@ -149,7 +149,9 @@ def _extract_learning_unit_with_score_responsible():
 
     worksheet.append(["Faculté de l'entité de gestion", 'Entité de gestion', 'Sigle', 'Type', 'Intitulé',
                       'Enseignant(s)', 'Responsable de notes'])
-    for row in xls_data:
+    for idx, row in enumerate(xls_data, 1):
+        worksheet.cell('F{}'.format(idx)).style.alignment.wrap_text = True
+        worksheet.cell('G{}'.format(idx)).style.alignment.wrap_text = True
         worksheet.append(list(row))
     workbook.save(filename='learning_unit_2018.xlsx')
 
