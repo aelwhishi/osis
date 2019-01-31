@@ -241,35 +241,7 @@ class TestSave(TestCase):
         self.assertEqual(self.learning_unit_year.internship_subtype, internship_subtypes.TEACHING_INTERNSHIP)
 
     def test_creation_proposal_learning_unit(self):
-        initial_data_expected = {
-            "learning_container_year": {
-                "id": self.learning_unit_year.learning_container_year.id,
-                "acronym": self.learning_unit_year.acronym,
-                "common_title": self.learning_unit_year.learning_container_year.common_title,
-                "container_type": self.learning_unit_year.learning_container_year.container_type,
-                "in_charge": self.learning_unit_year.learning_container_year.in_charge
-            },
-            "learning_unit_year": {
-                "id": self.learning_unit_year.id,
-                "acronym": self.learning_unit_year.acronym,
-                "specific_title": self.learning_unit_year.specific_title,
-                "internship_subtype": self.learning_unit_year.internship_subtype,
-                "language": self.learning_unit_year.language.pk,
-                "credits": self.learning_unit_year.credits,
-                "campus": self.learning_unit_year.campus.id,
-                "periodicity": self.learning_unit_year.periodicity,
-            },
-            "learning_unit": {
-                "id": self.learning_unit_year.learning_unit.id,
-                'end_year': self.learning_unit_year.learning_unit.end_year
-            },
-            "entities": {
-                entity_container_year_link_type.REQUIREMENT_ENTITY: self.entity_container_year.entity.id,
-                entity_container_year_link_type.ALLOCATION_ENTITY: None,
-                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: None,
-                entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
-            }
-        }
+        initial_data_expected =build_initial_data(self.learning_unit_year, self.entity_container_year)
 
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
         self.assertTrue(form.is_valid(), form.errors)
@@ -282,6 +254,7 @@ class TestSave(TestCase):
         self.assertEqual(a_proposal_learning_unt.author, self.person)
         self.assertDictEqual(a_proposal_learning_unt.initial_data, initial_data_expected)
 
+
     def test_when_setting_additional_entity_to_none(self):
         self.form_data['additional_requirement_entity_1-entity'] = None
         form = ProposalBaseForm(self.form_data, self.person, self.learning_unit_year)
@@ -291,3 +264,35 @@ class TestSave(TestCase):
         with self.assertRaises(ObjectDoesNotExist):
             EntityContainerYear.objects.get(learning_container_year=self.learning_unit_year.learning_container_year,
                                             type=entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1)
+
+
+def build_initial_data(luy, entity_container_yr):
+    return {
+        "learning_container_year": {
+            "id": luy.learning_container_year.id,
+            "acronym": luy.acronym,
+            "common_title": luy.learning_container_year.common_title,
+            "container_type": luy.learning_container_year.container_type,
+            "in_charge": luy.learning_container_year.in_charge
+        },
+        "learning_unit_year": {
+            "id": luy.id,
+            "acronym": luy.acronym,
+            "specific_title": luy.specific_title,
+            "internship_subtype": luy.internship_subtype,
+            "language": luy.language.pk,
+            "credits": luy.credits,
+            "campus": luy.campus.id,
+            "periodicity": luy.periodicity,
+        },
+        "learning_unit": {
+            "id": luy.learning_unit.id,
+            'end_year': luy.learning_unit.end_year
+        },
+        "entities": {
+            entity_container_year_link_type.REQUIREMENT_ENTITY: entity_container_yr.entity.id,
+            entity_container_year_link_type.ALLOCATION_ENTITY: None,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_1: None,
+            entity_container_year_link_type.ADDITIONAL_REQUIREMENT_ENTITY_2: None
+        }
+    }

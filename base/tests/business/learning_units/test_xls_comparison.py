@@ -29,7 +29,7 @@ from django.test import TestCase
 from django.utils.translation import ugettext_lazy as _
 from base.tests.factories.user import UserFactory
 from base.business.learning_units.xls_comparison import prepare_xls_content, \
-    _get_learning_unit_yrs_on_2_different_years, _translate_status, create_xls_comparison, \
+    _get_learning_unit_yrs_on_2_different_years, translate_status, create_xls_comparison, \
     XLS_FILENAME, XLS_DESCRIPTION, LEARNING_UNIT_TITLES, WORKSHEET_TITLE, CELLS_MODIFIED_NO_BORDER, DATA, \
     _check_changes_other_than_code_and_year, CELLS_TOP_BORDER
 from osis_common.document import xls_build
@@ -60,14 +60,14 @@ class TestComparisonXls(TestCase):
         learning_unit_yr = self.previous_learning_unit_year
         self.assertEqual(data[0][0], learning_unit_yr.acronym)
         self.assertEqual(data[0][1], learning_unit_yr.academic_year.name)
-        self.assertEqual(data[0][2], xls_build.translate(learning_unit_yr.learning_container_year.container_type))
-        self.assertEqual(data[0][3], _translate_status(learning_unit_yr.status))
-        self.assertEqual(data[0][4], xls_build.translate(learning_unit_yr.subtype))
+        self.assertEqual(data[0][2], learning_unit_yr.learning_container_year.get_container_type_display())
+        self.assertEqual(data[0][3], translate_status(learning_unit_yr.status))
+        self.assertEqual(data[0][4], learning_unit_yr.get_subtype_display())
         self.assertEqual(data[0][5],
-                         str(_(learning_unit_yr.internship_subtype)) if learning_unit_yr.internship_subtype else '')
+                         str(_(learning_unit_yr.get_internship_subtype_display())) if learning_unit_yr.internship_subtype else '')
         self.assertEqual(data[0][6], learning_unit_yr.credits)
         self.assertEqual(data[0][7], learning_unit_yr.language.name if learning_unit_yr.language else '')
-        self.assertEqual(data[0][8], str(_(learning_unit_yr.periodicity)) if learning_unit_yr.periodicity else '')
+        self.assertEqual(data[0][8], str(_(learning_unit_yr.get_periodicity_display())) if learning_unit_yr.periodicity else '')
         self.assertEqual(data[0][9], str(_(learning_unit_yr.quadrimester)) if learning_unit_yr.quadrimester else '')
         self.assertEqual(data[0][10], str(_(learning_unit_yr.session)) if learning_unit_yr.session else '')
         self.assertEqual(data[0][11], learning_unit_yr.learning_container_year.common_title)

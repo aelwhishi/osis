@@ -39,7 +39,7 @@ from base.business.learning_unit import get_organization_from_learning_unit_year
 from base.business.learning_units.comparison import get_partims_as_str
 from base.models.academic_year import current_academic_year
 from openpyxl.utils import get_column_letter
-
+from base.models.enums import entity_container_year_link_type
 # List of key that a user can modify
 EMPTY_VALUE = ''
 DATE_FORMAT = '%d-%m-%Y'
@@ -50,13 +50,13 @@ XLS_FILENAME = 'learning_units_comparison'
 XLS_DESCRIPTION = _("Comparison of learning units")
 
 LEARNING_UNIT_TITLES = [
-    str(_('code')),
+    str(_('Code')),
     str(_('Ac yr.')),
-    str(_('type')),
+    str(_('Type')),
     str(_('Active')),
     str(_('Subtype')),
     str(_('Internship subtype')),
-    str(_('credits')),
+    str(_('Credits')),
     str(_('Language')),
     str(_('Periodicity')),
     str(_('Quadrimester')),
@@ -73,7 +73,7 @@ LEARNING_UNIT_TITLES = [
     str(_('Institution')),
     str(_('Learning location')),
     str(_('Partims')),
-    "PM {}".format(_('code')),
+    "PM {}".format(_('Code')),
     "PM {}".format(_('Vol. Q1')),
     "PM {}".format(_('Vol. Q2')),
     "PM {}".format(_('Vol. annual')),
@@ -83,7 +83,7 @@ LEARNING_UNIT_TITLES = [
     "PM {}".format(_('Req. Entities')),
     "PM {}".format(_('Add. requ. ent. 1')),
     "PM {}".format(_('Add. requ. ent. 2')),
-    "PP {}".format(_('code')),
+    "PP {}".format(_('Code')),
     "PP {}".format(_('Vol. Q1')),
     "PP {}".format(_('Vol. Q2')),
     "PP {}".format(_('Vol. annual')),
@@ -201,7 +201,7 @@ def extract_xls_data_from_learning_unit(learning_unit_yr, new_line, first_data):
     return data
 
 
-def _translate_status(value):
+def translate_status(value):
     if value:
         return _('Active')
     else:
@@ -222,15 +222,16 @@ def _get_data(learning_unit_yr, new_line, first_data):
     return [
         _get_acronym(learning_unit_yr, new_line, first_data),
         learning_unit_yr.academic_year.name,
-        xls_build.translate(learning_unit_yr.learning_container_year.container_type),
-        _translate_status(learning_unit_yr.status),
-        xls_build.translate(learning_unit_yr.subtype),
-        _get_translation(learning_unit_yr.internship_subtype),
+        learning_unit_yr.learning_container_year.get_container_type_display()
+        if learning_unit_yr.learning_container_year.container_type else EMPTY_VALUE,
+        translate_status(learning_unit_yr.status),
+        learning_unit_yr.get_subtype_display() if learning_unit_yr.subtype else EMPTY_VALUE,
+        learning_unit_yr.get_internship_subtype_display() if learning_unit_yr.internship_subtype else EMPTY_VALUE,
         learning_unit_yr.credits,
         learning_unit_yr.language.name if learning_unit_yr.language else EMPTY_VALUE,
-        _get_translation(learning_unit_yr.periodicity),
-        _get_translation(learning_unit_yr.quadrimester),
-        _get_translation(learning_unit_yr.session),
+        learning_unit_yr.get_periodicity_display() if learning_unit_yr.periodicity else EMPTY_VALUE,
+        get_translation(learning_unit_yr.quadrimester),
+        get_translation(learning_unit_yr.session),
         learning_unit_yr.learning_container_year.common_title,
         learning_unit_yr.specific_title,
         learning_unit_yr.learning_container_year.common_title_english,
@@ -247,13 +248,16 @@ def _get_data(learning_unit_yr, new_line, first_data):
 
 
 def _get_acronym(learning_unit_yr, new_line, first_data):
-    acronym = EMPTY_VALUE
-    if new_line:
-        acronym = learning_unit_yr.acronym
-    else:
-        if learning_unit_yr.acronym != first_data[ACRONYM_COL_NUMBER]:
+    if first_data:
+        acronym = EMPTY_VALUE
+        if new_line:
             acronym = learning_unit_yr.acronym
-    return acronym
+        else:
+            if learning_unit_yr.acronym != first_data[ACRONYM_COL_NUMBER]:
+                acronym = learning_unit_yr.acronym
+        return acronym
+    else:
+        return learning_unit_yr.acronym
 
 
 def _get_volumes(component, components):
@@ -272,7 +276,7 @@ def _get_volumes(component, components):
     ]
 
 
-def _get_translation(value):
+def get_translation(value):
     return str(_(value)) if value else EMPTY_VALUE
 
 
