@@ -84,6 +84,8 @@ INSTALLED_APPS = (
     'compat',
     'hijack_admin',
     'reversion',
+    'mptt',
+    'entity'
 )
 
 MIDDLEWARE = (
