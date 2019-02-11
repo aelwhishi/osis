@@ -30,7 +30,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator, RegexVa
 from django.db import models
 from django.db.models import Q, Sum
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _, ngettext
+from django.utils.translation import gettext_lazy as _
 from reversion.admin import VersionAdmin
 
 from base.models import entity_container_year as mdl_entity_container_year, group_element_year
@@ -42,7 +42,7 @@ from base.models.enums import learning_unit_year_subtypes, internship_subtypes, 
 from base.models.enums.learning_container_year_types import COURSE, INTERNSHIP
 from base.models.enums.learning_unit_year_periodicity import PERIODICITY_TYPES, ANNUAL, BIENNIAL_EVEN, BIENNIAL_ODD
 from base.models.learning_component_year import LearningComponentYear
-from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_ALL, REGEX_BY_SUBTYPE
+from base.models.learning_unit import LEARNING_UNIT_ACRONYM_REGEX_MODEL
 from base.models.prerequisite_item import PrerequisiteItem
 from osis_common.models.serializable_model import SerializableModel, SerializableModelAdmin
 
@@ -70,29 +70,7 @@ class LearningUnitYearAdmin(VersionAdmin, SerializableModelAdmin):
     search_fields = ['acronym', 'structure__acronym', 'external_id']
     actions = [
         'resend_messages_to_queue',
-        'apply_learning_unit_year_postponement'
     ]
-
-    def apply_learning_unit_year_postponement(self, request, queryset):
-        # Potential circular imports
-        from base.business.learning_units.automatic_postponement import LearningUnitAutomaticPostponement
-        from base.views.common import display_success_messages, display_error_messages
-
-        result, errors = LearningUnitAutomaticPostponement(queryset).postpone()
-        count = len(result)
-        display_success_messages(
-            request, ngettext(
-                '%(count)d learning unit has been postponed with success',
-                '%(count)d learning units have been postponed with success', count
-            ) % {'count': count}
-        )
-        if errors:
-            display_error_messages(request, "{} : {}".format(
-                _("The following learning units ended with error"),
-                ", ".join([str(error) for error in errors])
-            ))
-
-    apply_learning_unit_year_postponement.short_description = _("Apply postponement on learning unit year")
 
 
 class LearningUnitYearWithContainerManager(models.Manager):
@@ -125,7 +103,7 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
 
     changed = models.DateTimeField(null=True, auto_now=True)
     acronym = models.CharField(max_length=15, db_index=True, verbose_name=_('Code'),
-                               validators=[RegexValidator(LEARNING_UNIT_ACRONYM_REGEX_ALL)])
+                               validators=[RegexValidator(LEARNING_UNIT_ACRONYM_REGEX_MODEL)])
     specific_title = models.CharField(max_length=255, blank=True, null=True,
                                       verbose_name=_('French title proper'))
     specific_title_english = models.CharField(max_length=250, blank=True, null=True,
@@ -323,8 +301,6 @@ class LearningUnitYear(SerializableModel, ExtraManagerLearningUnitYear):
     def clean_acronym(self, learning_unit_years):
         if self.acronym in learning_unit_years.values_list('acronym', flat=True):
             raise ValidationError({'acronym': _('Existing acronym')})
-        if not re.match(REGEX_BY_SUBTYPE[self.subtype], self.acronym):
-            raise ValidationError({'acronym': _('Invalid code')})
 
     @property
     def warnings(self):

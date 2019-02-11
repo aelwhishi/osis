@@ -23,27 +23,32 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+from gettext import ngettext
+
 from django.db import models, IntegrityError
 from django.db.models import Max
 from django.utils.translation import ugettext_lazy as _
 from reversion.admin import VersionAdmin
 
 from base.models.academic_year import current_academic_year, AcademicYear
+from base.models.enums.learning_container_year_types import EXTERNAL
 from base.models.enums.learning_unit_year_subtypes import PARTIM, FULL
 from osis_common.models.serializable_model import SerializableModel, \
     SerializableModelAdmin
 
+LEARNING_UNIT_ACRONYM_REGEX_MODEL = "^[BGLMTWX][A-Z]{2,4}\d{4}"
 LEARNING_UNIT_ACRONYM_REGEX_BASE = "^[BLMWX][A-Z]{2,4}\d{4}"
+LEARNING_UNIT_ACRONYM_REGEX_EXTERNAL = "^[GLMTW][A-Z]{2,4}\d{4}$"
 LETTER_OR_DIGIT = "[A-Z0-9]"
 STRING_END = "$"
 LEARNING_UNIT_ACRONYM_REGEX_ALL = LEARNING_UNIT_ACRONYM_REGEX_BASE + LETTER_OR_DIGIT + "{0,1}" + STRING_END
 LEARNING_UNIT_ACRONYM_REGEX_FULL = LEARNING_UNIT_ACRONYM_REGEX_BASE + STRING_END
 LEARNING_UNIT_ACRONYM_REGEX_PARTIM = LEARNING_UNIT_ACRONYM_REGEX_BASE + LETTER_OR_DIGIT + STRING_END
-LEARNING_UNIT_ACRONYM_REGEX_EXTERNAL = "^X[A-Z]{2,4}\d{4}$"
 
 REGEX_BY_SUBTYPE = {
     PARTIM: LEARNING_UNIT_ACRONYM_REGEX_PARTIM,
-    FULL: LEARNING_UNIT_ACRONYM_REGEX_FULL
+    FULL: LEARNING_UNIT_ACRONYM_REGEX_FULL,
+    EXTERNAL: LEARNING_UNIT_ACRONYM_REGEX_EXTERNAL
 }
 
 
@@ -51,6 +56,31 @@ class LearningUnitAdmin(VersionAdmin, SerializableModelAdmin):
     list_display = ('learning_container', 'acronym', 'title', 'start_year', 'end_year', 'changed')
     search_fields = ['learningunityear__acronym', 'learningunityear__specific_title', 'learning_container__external_id']
     list_filter = ('start_year',)
+
+    actions = [
+        'apply_learning_unit_year_postponement'
+    ]
+
+    def apply_learning_unit_year_postponement(self, request, queryset):
+        # Potential circular imports
+        from base.business.learning_units.automatic_postponement import LearningUnitAutomaticPostponement
+        from base.views.common import display_success_messages, display_error_messages
+
+        result, errors = LearningUnitAutomaticPostponement(queryset).postpone()
+        count = len(result)
+        display_success_messages(
+            request, ngettext(
+                '%(count)d learning unit has been postponed with success',
+                '%(count)d learning units have been postponed with success', count
+            ) % {'count': count}
+        )
+        if errors:
+            display_error_messages(request, "{} : {}".format(
+                _("The following learning units ended with error"),
+                ", ".join([str(error) for error in errors])
+            ))
+
+    apply_learning_unit_year_postponement.short_description = _("Apply postponement on learning unit year")
 
 
 class LearningUnit(SerializableModel):
@@ -60,8 +90,6 @@ class LearningUnit(SerializableModel):
     changed = models.DateTimeField(null=True, auto_now=True)
     start_year = models.IntegerField(_('Starting year'))
     end_year = models.IntegerField(blank=True, null=True, verbose_name=_('End year'))
-    # TODO is it useful?
-    progress = None
 
     faculty_remark = models.TextField(blank=True, null=True, verbose_name=_('Faculty remark'))
 
