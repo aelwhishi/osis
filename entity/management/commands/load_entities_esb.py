@@ -34,6 +34,7 @@ import json
 # from migration_epc_to_osis.v1.base import entity
 # from migration_epc_to_osis.v1.base import entity_version
 # from migration_epc_to_osis.v1.base import organization
+from datetime import datetime, date
 from operator import itemgetter
 
 from django.core.management.base import BaseCommand
@@ -66,21 +67,16 @@ class Command(BaseCommand):
 
     @staticmethod
     def load_json_esb(path):
+        new_academic_years()
         with open(path, encoding="utf-8") as f:
             data = json.loads(f.read())
             process_esb_data(data['entities']['entity'])
 
 
 def process_esb_data(esb_data):
-    current_hierarchy_data = {}
-    counter = 0
     sorted_esb_data = sort_esb_data_by_level(esb_data)
-    print(sorted_esb_data)
     for esb_item in sorted_esb_data:
-        counter += 1
-        entity = build_entity(esb_item, current_hierarchy_data)
-
-        print(entity)
+        build_entity(esb_item)
 
 
 def sort_esb_data_by_level(esb_data):
@@ -94,8 +90,8 @@ def sort_esb_data_by_level(esb_data):
     return sorted(esb_data, key=itemgetter('level'))
 
 
-def build_entity(esb_item, current_hierarchy_data):
-    entityversion_set = build_versions(esb_item, current_hierarchy_data)
+def build_entity(esb_item):
+    entityversion_set = build_versions(esb_item)
     entity, _ = Entity.objects.update_or_create(
         esb_id=esb_item["entity_id"],
         defaults={
@@ -103,49 +99,39 @@ def build_entity(esb_item, current_hierarchy_data):
             "country": Country.objects.get(iso_code='BE'),
         }
     )
-    print(entity)
+    all_academic_years = AcademicYear.objects.all()
     for env in entityversion_set:
+        for ac in all_academic_years:
+            if env['start_date'] > ac.end_date:
+                continue
+            if env['end_date'] and env['end_date'] < ac.start_date:
+                continue
 
-        qa = AcademicYear.objects.filter(
-            start_date__lt=env['start_date']
-        )
-        if env['end_date']:
-            qa = qa.filter(end_date__gte=env['end_date'])
+            try:
+                parent = EntityYear.objects.filter(academic_year=ac, entity__esb_id=env['parent']).first()
+            except TypeError:
+                parent = None
 
-        academic_year = qa.last()
-        print(academic_year, type(academic_year))
-
-        try:
-            ey = EntityYear.objects.get(
-                academic_year=academic_year.pk,
+            EntityYear.objects.update_or_create(
+                academic_year=ac,
                 entity=entity,
+                defaults={
+                    'acronym': env['acronym'],
+                    'title': env['title'],
+                    'entity_type': env['entity_type'] or "",
+                    'parent': parent or None
+                }
             )
-        except EntityYear.DoesNotExist:
-            ey = EntityYear(
-                academic_year=academic_year,
-                entity=entity,
-            )
-
-        ey.update({
-                'acronym': env['acronym'],
-                'title': env['title'],
-                'entity_type': env['entity_type'],
-            })
-
-        return entity
+    return entity
 
 
-def build_versions(esb_item, current_hierarchy_data):
-    try:
-        entity_parent = current_hierarchy_data.get(esb_item['parent_entity_id'])
-    except TypeError:
-        entity_parent = None
+def build_versions(esb_item):
     start_date = format_date_for_osis(esb_item['begin'])
     end_date = format_date_for_osis(esb_item['end'])
     return [
         {
             "acronym": esb_item['acronym'],
-            "parent": entity_parent,
+            "parent": esb_item['parent_entity_id'],
             "title": esb_item['name_fr'],
             "entity_type": get_entity_type(esb_item),
             "start_date": start_date,
@@ -154,12 +140,21 @@ def build_versions(esb_item, current_hierarchy_data):
     ]
 
 
+def new_academic_years():
+    current_year = datetime.now().year
+    for year in range(current_year - 30, current_year + 10):
+        AcademicYear.objects.get_or_create(year=year, defaults={
+            'start_date': datetime(year=year, month=9, day=15),
+            'end_date': datetime(year=year + 1, month=9, day=30)
+        })
+
+
 def get_entity_type(esb_item):
     return ESB_OSIS_TYPES_MATCH.get(esb_item.get('departmentType'))
 
 
 def format_date_for_osis(esb_date):
     if esb_date != ESB_NOT_ENDING_PERIOD_END_DATE:
-        return "{}-{}-{}".format(str(esb_date)[0:4], str(esb_date)[4:6], str(esb_date)[6:8])
+        return date(year=int(str(esb_date)[0:4]), month=int(str(esb_date)[4:6]), day=int(str(esb_date)[6:8]))
     else:
         return None

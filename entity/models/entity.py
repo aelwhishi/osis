@@ -24,6 +24,7 @@
 from django.contrib.admin import ModelAdmin
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.utils.translation import gettext_lazy
 
 from reference.models.country import Country
 
@@ -46,7 +47,8 @@ class Entity(models.Model):
     esb_id = models.IntegerField(unique=True)
 
     class Meta:
-        verbose_name_plural = "entities"
+        verbose_name = gettext_lazy("entity")
+        verbose_name_plural = gettext_lazy("entities")
 
     def __str__(self):
         try:

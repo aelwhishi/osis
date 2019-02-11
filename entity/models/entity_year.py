@@ -37,25 +37,34 @@ class EntityYearAdmin(ModelAdmin):
 
 
 class EntityYear(MPTTModel):
-    entity = models.ForeignKey('Entity')
-    title = models.CharField(db_index=True, max_length=255)
-    acronym = models.CharField(db_index=True, max_length=20)
-    academic_year = models.ForeignKey(AcademicYear, verbose_name=_('academic year'), related_name="entities")
+    entity = models.ForeignKey('Entity', on_delete=models.CASCADE)
+
+    title = models.CharField(db_index=True, max_length=255, verbose_name=_("title"))
+
+    acronym = models.CharField(db_index=True, max_length=20, verbose_name=_("acronym"))
+
+    academic_year = models.ForeignKey(
+        AcademicYear,
+        verbose_name=_('academic year'),
+        related_name="entities"
+    )
 
     entity_type = models.CharField(
         choices=entity_type.ENTITY_TYPES,
         max_length=50,
-        db_index=True,
         blank=True,
         verbose_name=_("Type")
     )
 
-    parent = TreeForeignKey('self', related_name='children', blank=True, null=True)
+    parent = TreeForeignKey(
+        'self', related_name='children',
+        blank=True, null=True,
+        verbose_name=_("Parent")
+    )
 
     logo = models.ImageField(
         upload_to='organization_logos',
-        null=True,
-        blank=True,
+        null=True, blank=True,
         verbose_name=_("logo")
     )
 
@@ -64,6 +73,8 @@ class EntityYear(MPTTModel):
 
     class Meta:
         unique_together = ('entity', 'academic_year')
+        verbose_name = _("Annualized entity")
+        verbose_name_plural = _("Annualized entities")
 
     class MPTTMeta:
         order_insertion_by = ['acronym']
