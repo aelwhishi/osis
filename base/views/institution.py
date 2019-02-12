@@ -76,21 +76,21 @@ def entities_search(request):
 
 @login_required
 def entity_read(request, entity_version_id):
-    entity_version = get_object_or_404(EntityVersion, id=entity_version_id)
+    obj = get_object_or_404(EntityVersion, id=entity_version_id)
     can_user_post = can_user_edit_educational_information_submission_dates_for_entity(request.user,
-                                                                                      entity_version.entity)
+                                                                                      obj.entity)
     if request.method == "POST" and not can_user_post:
         logger.warning("User {} has no sufficient right to modify submission dates of educational information.".
                        format(request.user))
         raise PermissionDenied()
 
-    entity_parent = entity_version.get_parent_version()
-    descendants = entity_version.descendants
+    entity_parent = obj.get_parent_version()
+    descendants = obj.descendants
 
-    form = EntityCalendarEducationalInformationForm(entity_version, request.POST or None)
+    form = EntityCalendarEducationalInformationForm(obj, request.POST or None)
     if form.is_valid():
         display_success_messages(request, _("Educational information submission dates updated"))
-        form.save_entity_calendar(entity_version.entity)
+        form.save_entity_calendar(obj.entity)
 
     # TODO Remove locals
     return render(request, "entity/identification.html", locals())

@@ -25,23 +25,40 @@
 * see http://www.gnu.org/licenses/.
 {% endcomment %}
 
-{% if can_user_post %}
-    {% block style %}
-        {% include "education_group/blocks/datetimepicker_imports_css.html" %}
-    {% endblock style %}
-{% endif %}
 
 {% block breadcrumb %}
-    {% include "entity/breadcrumb.html" %}
+    <li><a href="{% url 'institution' %}" id="lnk_institution">{% trans 'Institution' %}</a></li>
+    <li><a href="{% url 'entities' %}" id="lnk_entities">{% trans 'Entities' %}</a></li>
+    <li class="active">{{ obj.acronym }}</li>
 {% endblock %}
 
 {% block content %}
-
-    {% include "entity/header.html" %}
+    {% if obj.parent %}
+        <h3>{{ obj.parent.acronym }} - {{ obj.parent.title }}</h3>
+        <h2>{{ obj.acronym }} - {{ obj.title }}</h2>
+    {% else %}
+        <h3>{{ ojb.title }}</h3>
+    {% endif %}
 
     <div class="panel panel-default">
         <div class="panel-body" id="tabs">
-            {% include "entity/tabs.html" %}
+            {% url 'entity_read' obj.pk as url_identification %}
+            {% url 'entity_diagram' obj.pk  as url_organogram %}
+            {% url 'entities_version' obj.pk as url_versions %}
+
+            <ul class="nav nav-tabs" role="tablist">
+                <li role="presentation" {% if request.path == url_identification %} class="active" {% endif %}>
+                    <a href="{{ url_identification }}">{% trans 'Identification' %}</a>
+                </li>
+                {% if obj.children %}
+                    <li role="presentation" {% if request.path == url_organogram %} class="active" {% endif %}>
+                        <a href="{{ url_organogram }}">{% trans 'Organizational chart' %}</a>
+                    </li>
+                {% endif %}
+                <li role="presentation" {% if request.path == url_versions %} class="active" {% endif %}>
+                    <a href="{{ url_versions }}">{% trans 'Versions' %}</a>
+                </li>
+            </ul>
 
             <div class="tab-content">
                 <div id="tab_identification" class="tab-pane active">
@@ -49,57 +66,57 @@
                     <div class="row">
                         <dl class="col-md-2">
                             <dt>{% trans 'Acronym' %}</dt>
-                            <dd>{{ entity_version.acronym }}</dd>
+                            <dd>{{ obj.acronym }}</dd>
                         </dl>
                         <dl class="col-md-10">
                             <dt>{% trans 'Title' %}</dt>
-                            <dd>{{ entity_version.title }}</dd>
+                            <dd>{{ obj.title }}</dd>
                         </dl>
                     </div>
                     <div class="row">
-                        {% if entity_version.entity_type %}
+                        {% if obj.entity_type %}
                             <dl class="col-md-2">
                                 <dt>{% trans 'Type' %}</dt>
-                                <dd>{% trans entity_version.get_entity_type_display %}</dd>
+                                <dd>{% trans obj.get_entity_type_display %}</dd>
                             </dl>
                         {% endif %}
                         {% if entity_parent %}
                             <dl class="col-md-4">
                                 <dt>{% trans 'Attached to' %}</dt>
                                 <dd>
-                                    <a href="{% url 'entity_read' entity_version_id=entity_parent.id %}">
-                                        {{ entity_parent.acronym }} - {{ entity_parent.title }}</a>
+                                    <a href="{% url 'entity_read' obj.parent.pk %}">
+                                        {{ obj.acronym }} - {{ obj.title }}</a>
                                 </dd>
                             </dl>
                         {% endif %}
-                        {% if entity_version.entity.organization %}
+                        {% if obj.entity.organization %}
                             <dl class="col-md-6">
                                 <dt>{% trans 'Organization' %}</dt>
                                 <dd>
-                                    <a href="{% url 'organization_read' organization_id=entity_version.entity.organization.id %}">
-                                        {{ entity_version.entity.organization | default_if_none:'' }}
+                                    <a href="{% url 'organization_read' organization_id=obj.entity.organization.id %}">
+                                        {{ obj.entity.organization | default_if_none:'' }}
                                     </a>
                                 </dd>
                             </dl>
                         {% endif %}
                     </div>
 
-                    {% if can_user_post %}
-                        {% include "entity/blocks/educational_summary_calendar_widget.html" %}
-                    {% else %}
-                        <div class="row">
-                            <dl class="col-md-4">
-                                <dt>{{ form.start_date.label }}</dt>
-                                <dd>{{ form.start_date.initial|date:"d/m/Y"|default:"-" }}</dd>
-                            </dl>
-                            <dl class="col-md-4">
-                                <dt>{{ form.end_date.label }}</dt>
-                                <dd>{{ form.end_date.initial|date:"d/m/Y"|default:"-" }}</dd>
-                            </dl>
-                        </div>
-                    {% endif %}
+{#                    {% if can_user_post %}#}
+{#                        {% include "entity/blocks/educational_summary_calendar_widget.html" %}#}
+{#                    {% else %}#}
+{#                        <div class="row">#}
+{#                            <dl class="col-md-4">#}
+{#                                <dt>{{ form.start_date.label }}</dt>#}
+{#                                <dd>{{ form.start_date.initial|date:"d/m/Y"|default:"-" }}</dd>#}
+{#                            </dl>#}
+{#                            <dl class="col-md-4">#}
+{#                                <dt>{{ form.end_date.label }}</dt>#}
+{#                                <dd>{{ form.end_date.initial|date:"d/m/Y"|default:"-" }}</dd>#}
+{#                            </dl>#}
+{#                        </div>#}
+{#                    {% endif %}#}
 
-                    {% if descendants %}
+                    {% if obj.children %}
                         <br>
                         <div class="panel panel-default">
                             <div class="panel-heading">
@@ -118,17 +135,17 @@
                                                 </tr>
                                                 </thead>
                                                 <tbody>
-                                                {% for entity_version in descendants %}
+                                                {% for entity_year in obj.get_descendants %}
                                                     <tr>
                                                         <td>
-                                                            <a href="{% url 'entity_read' entity_version.pk %}"
-                                                               id="lnk_entity_read_{{ entity_version.id }}">
-                                                                {{ entity_version.acronym }}
+                                                            <a href="{% url 'entity_read' entity_year.pk %}"
+                                                               id="lnk_entity_read_{{ entity_year.id }}">
+                                                                {{ entity_year.acronym }}
                                                             </a>
                                                         </td>
-                                                        <td>{{ entity_version.title }}</td>
+                                                        <td>{{ entity_year.title }}</td>
                                                         <td>
-                                                            {{ entity_version.get_entity_type_display|default_if_none:"-" }}
+                                                            {{ entity_year.get_entity_type_display|default_if_none:"-" }}
                                                         </td>
                                                     </tr>
                                                 {% endfor %}
@@ -146,8 +163,3 @@
     </div>
 {% endblock %}
 
-{% if can_user_post %}
-    {% block script %}
-        {% include "education_group/blocks/datetimepicker_imports_js.html" %}
-    {% endblock script %}
-{% endif %}
