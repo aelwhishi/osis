@@ -54,7 +54,6 @@ from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
 from base.views.organization import OrganizationAutocomplete, CountryAutocomplete, CampusAutocomplete
 from base.views.person import EmployeeAutocomplete
-from entity.views import entities_year, entities_search, entity_read, entity_diagram
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
