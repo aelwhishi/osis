@@ -27,6 +27,7 @@ from django.utils.translation import gettext_lazy as _
 from mptt.models import MPTTModel, TreeForeignKey
 
 from base.models.enums import entity_type
+from entity.models.entity import Entity
 from reference.models.academic_year import AcademicYear
 
 
@@ -37,7 +38,7 @@ class EntityYearAdmin(ModelAdmin):
 
 
 class EntityYear(MPTTModel):
-    entity = models.ForeignKey('Entity', on_delete=models.CASCADE)
+    entity = models.ForeignKey(Entity, on_delete=models.CASCADE)
 
     title = models.CharField(db_index=True, max_length=255, verbose_name=_("title"))
 

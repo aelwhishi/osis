@@ -24,25 +24,22 @@
 #
 ##############################################################################
 import json
-import logging
 
-from django.conf import settings
-from django.contrib.auth.decorators import login_required, permission_required, user_passes_test
-from django.core.exceptions import PermissionDenied
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import permission_required, user_passes_test
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
-from django.utils.translation import gettext_lazy as _
+from django.shortcuts import render, get_object_or_404
+# Create your views here.
+from django.utils.translation import gettext
+from mptt.templatetags.mptt_tags import cache_tree_children
 
-from base import models as mdl
-from base.business.institution import can_user_edit_educational_information_submission_dates_for_entity
 from base.forms.entity import EntityVersionFilter
 from base.forms.entity_calendar import EntityCalendarEducationalInformationForm
 from base.models import entity_version as entity_version_mdl
+from base.models.entity import Entity as OldEntity
 from base.models.entity_manager import has_perm_entity_manager
-from base.models.entity_version import EntityVersion
-from base.views.common import display_success_messages, paginate_queryset
-
-logger = logging.getLogger(settings.DEFAULT_LOGGER)
+from base.views.common import paginate_queryset, display_success_messages
+from entity.models.entity_year import EntityYear
 
 
 @login_required
@@ -64,62 +61,6 @@ def academic_actors(request):
 
 
 @login_required
-def entities_search(request):
-    order_by = request.GET.get('order_by', 'acronym')
-    filter = EntityVersionFilter(request.GET or None)
-
-    entities_version_list = filter.qs.select_related('entity__organization').order_by(order_by)
-    entities_version_list = paginate_queryset(entities_version_list, request.GET)
-
-    return render(request, "entities.html", {'entities_version': entities_version_list, 'form': filter.form})
-
-
-@login_required
-def entity_read(request, entity_version_id):
-    obj = get_object_or_404(EntityVersion, id=entity_version_id)
-    can_user_post = can_user_edit_educational_information_submission_dates_for_entity(request.user,
-                                                                                      obj.entity)
-    if request.method == "POST" and not can_user_post:
-        logger.warning("User {} has no sufficient right to modify submission dates of educational information.".
-                       format(request.user))
-        raise PermissionDenied()
-
-    entity_parent = obj.get_parent_version()
-    descendants = obj.descendants
-
-    form = EntityCalendarEducationalInformationForm(obj, request.POST or None)
-    if form.is_valid():
-        display_success_messages(request, _("Educational information submission dates updated"))
-        form.save_entity_calendar(obj.entity)
-
-    # TODO Remove locals
-    return render(request, "entity/identification.html", locals())
-
-
-@login_required
-def entities_version(request, entity_version_id):
-    entity_version = mdl.entity_version.find_by_id(entity_version_id)
-    entity_parent = entity_version.get_parent_version()
-    entities_version = mdl.entity_version.search(entity=entity_version.entity) \
-                                         .order_by('-start_date')
-    return render(request, "entity/versions.html", locals())
-
-
-@login_required
-def entity_diagram(request, entity_version_id):
-    entity_version = mdl.entity_version.find_by_id(entity_version_id)
-    entities_version_as_json = json.dumps(entity_version.get_organogram_data())
-
-    return render(
-        request, "entity/organogram.html",
-        {
-            "entity_version": entity_version,
-            "entities_version_as_json": entities_version_as_json,
-        }
-    )
-
-
-@login_required
 def get_entity_address(request, entity_version_id):
     version = entity_version_mdl.find_by_id(entity_version_id)
     entity = version.entity
@@ -138,3 +79,64 @@ def get_entity_address(request, entity_version_id):
             'fax': entity.fax,
         }
     return JsonResponse(response)
+
+
+@login_required
+def entities_year(request, entity_version_id):
+    entity_year = get_object_or_404(EntityYear, pk=entity_version_id)
+    annualized_entities = entity_year.entity.entityyear_set.select_related("academic_year")
+    return render(request, "entity/versions.html", {'obj': entity_year, 'entities_year': annualized_entities})
+
+
+@login_required
+def entity_read(request, entity_version_id):
+    obj = get_object_or_404(EntityYear, pk=entity_version_id)
+    old_entity = OldEntity.objects.get(external_id__endswith=obj.entity.esb_id)
+
+    person = request.user.person
+    can_user_post = person.is_faculty_manager and person.is_attached_entity(old_entity)
+
+    form = EntityCalendarEducationalInformationForm(old_entity, request.POST or None)
+    if can_user_post and form.is_valid():
+        display_success_messages(request, gettext("Educational information submission dates updated"))
+        form.save_entity_calendar(old_entity)
+
+    return render(request, "entity/identification.html", {
+        "obj": obj, "form": form, 'old_entity': old_entity, "can_user_post": can_user_post,
+    })
+
+
+@login_required
+def entities_search(request):
+    order_by = request.GET.get('order_by', 'acronym')
+    qs_filter = EntityVersionFilter(request.GET or None)
+
+    entities_version_list = qs_filter.qs.order_by(order_by)
+    entities_version_list = paginate_queryset(entities_version_list, request.GET)
+
+    return render(request, "entities.html", {'entities_version': entities_version_list, 'form': qs_filter.form})
+
+
+def recursive_node_to_dict(node, limit=3):
+    limit -= 1
+    return {
+        'id': node.pk,
+        'acronym': node.acronym,
+        'children': [recursive_node_to_dict(c, limit) for c in node.get_children() if limit > 0]
+    }
+
+
+@login_required
+def entity_diagram(request, entity_version_id):
+    obj = get_object_or_404(EntityYear, pk=entity_version_id)
+
+    # Retrieve descendants of a node up to two levels below it
+    tree = cache_tree_children(obj.get_descendants(include_self=True))[0]
+    annualized_entities_as_json = json.dumps(recursive_node_to_dict(tree))
+    return render(
+        request, "entity/organogram.html",
+        {
+            "obj": obj,
+            "entities_version_as_json": annualized_entities_as_json,
+        }
+    )

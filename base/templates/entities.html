@@ -80,6 +80,7 @@
                         </td>
                         <td>{{ entity_version.title }}</td>
                         <td>{{ entity_version.get_entity_type_display | default_if_none:'-' }}</td>
+                        {# TODO #}
                         <td>{{ entity_version.entity.organization }}</td>
                     </tr>
                 {% endfor %}

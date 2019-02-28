@@ -25,18 +25,24 @@
 ##############################################################################
 import django_filters
 from django.forms import TextInput
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy
 
-from base.models.entity_version import EntityVersion
+from base.models.academic_year import current_academic_year
+from entity.models.entity_year import EntityYear
 
 
 class EntityVersionFilter(django_filters.FilterSet):
     acronym = django_filters.CharFilter(
-        lookup_expr='icontains', label=_("Acronym"),
+        lookup_expr='icontains', label=gettext_lazy("Acronym"),
         widget=TextInput(attrs={'style': "text-transform:uppercase"})
     )
-    title = django_filters.CharFilter(lookup_expr='icontains', label=_("Title"), )
+    title = django_filters.CharFilter(lookup_expr='icontains', label=gettext_lazy("Title"), )
+
+    @property
+    def qs(self):
+        # TODO
+        return super().qs.filter(academic_year=current_academic_year().year)
 
     class Meta:
-        model = EntityVersion
+        model = EntityYear
         fields = ["entity_type"]

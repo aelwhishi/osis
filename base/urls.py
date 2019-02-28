@@ -54,7 +54,7 @@ from base.views.learning_units.proposal import create, update
 from base.views.learning_units.update import update_learning_unit, learning_unit_edition_end_date
 from base.views.organization import OrganizationAutocomplete, CountryAutocomplete, CampusAutocomplete
 from base.views.person import EmployeeAutocomplete
-from entity.views import entities_year
+from entity.views import entities_year, entities_search, entity_read, entity_diagram
 
 urlpatterns = [
     url(r'^$', common.home, name='home'),
@@ -103,7 +103,7 @@ urlpatterns = [
             url(r'^$', institution.entity_read, name='entity_read'),
             url(r'^address/$', institution.get_entity_address, name='entity_address'),
             url(r'^diagram/$', institution.entity_diagram, name='entity_diagram'),
-            url(r'^versions/$', entities_year, name='entities_version'),
+            url(r'^versions/$', institution.entities_year, name='entities_version'),
         ]))
     ])),
 

@@ -70,12 +70,15 @@ class Command(BaseCommand):
         new_academic_years()
         with open(path, encoding="utf-8") as f:
             data = json.loads(f.read())
+            print("Data imported.")
             process_esb_data(data['entities']['entity'])
-
+            print("Finish.")
 
 def process_esb_data(esb_data):
+    print("Sort esb by level.")
     sorted_esb_data = sort_esb_data_by_level(esb_data)
     for esb_item in sorted_esb_data:
+        print("import item : "+ str(esb_item))
         build_entity(esb_item)
 
 
@@ -99,7 +102,7 @@ def build_entity(esb_item):
             "country": Country.objects.get(iso_code='BE'),
         }
     )
-    all_academic_years = AcademicYear.objects.all()
+    all_academic_years = AcademicYear.objects.filter(year__gte=2004)
     for env in entityversion_set:
         for ac in all_academic_years:
             if env['start_date'] > ac.end_date:
@@ -119,7 +122,7 @@ def build_entity(esb_item):
                     'acronym': env['acronym'],
                     'title': env['title'],
                     'entity_type': env['entity_type'] or "",
-                    'parent': parent or None
+                    'parent': parent or None,
                 }
             )
     return entity
@@ -142,7 +145,7 @@ def build_versions(esb_item):
 
 def new_academic_years():
     current_year = datetime.now().year
-    for year in range(current_year - 30, current_year + 10):
+    for year in range(2004, current_year + 10):
         AcademicYear.objects.get_or_create(year=year, defaults={
             'start_date': datetime(year=year, month=9, day=15),
             'end_date': datetime(year=year + 1, month=9, day=30)

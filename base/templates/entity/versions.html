@@ -40,23 +40,7 @@
     {% endif %}
     <div class="panel panel-default">
         <div class="panel-body" id="tabs">
-            {% url 'entity_read' obj.pk as url_identification %}
-            {% url 'entity_diagram' obj.pk  as url_organogram %}
-            {% url 'entities_version' obj.pk as url_versions %}
-
-            <ul class="nav nav-tabs" role="tablist">
-                <li role="presentation" {% if request.path == url_identification %} class="active" {% endif %}>
-                    <a href="{{ url_identification }}">{% trans 'Identification' %}</a>
-                </li>
-                {% if obj.children %}
-                    <li role="presentation" {% if request.path == url_organogram %} class="active" {% endif %}>
-                        <a href="{{ url_organogram }}">{% trans 'Organizational chart' %}</a>
-                    </li>
-                {% endif %}
-                <li role="presentation" {% if request.path == url_versions %} class="active" {% endif %}>
-                    <a href="{{ url_versions }}">{% trans 'Versions' %}</a>
-                </li>
-            </ul>
+            {% include "entity/tabs.html" %}
 
             <div class="tab-content" id="tab_content">
                 <div role="tabpanel" class="tab-pane active" id="attributions">
@@ -65,7 +49,7 @@
                         <tr>
                             <th>{% trans 'Acronym' %}</th>
                             <th>{% trans 'Title' %}</th>
-                            <th>{% trans 'type' %}</th>
+                            <th>{% trans 'Type' %}</th>
                             <th>{% trans 'Academic year' %}</th>
                         </tr>
                         </thead>
