@@ -35,8 +35,8 @@ from base.models.education_group_year import EducationGroupYear
 from base.models.hops import Hops
 
 EDUCATION_GROUP_MAX_POSTPONE_YEARS = 6
-FIELD_TO_EXCLUDE = ['id', 'uuid', 'external_id', 'academic_year']
-HOPS_FIELDS = ('ares_study',  'ares_graca', 'ares_ability')
+FIELD_TO_EXCLUDE = ['id', 'uuid', 'external_id', 'academic_year', 'linked_with_epc', 'publication_contact_entity']
+HOPS_FIELDS = ('ares_study', 'ares_graca', 'ares_ability')
 
 
 class ConsistencyError(Error):
@@ -165,9 +165,15 @@ class PostponementEducationGroupYearMixin:
         for academic_year in AcademicYear.objects.filter(year__gt=self.postpone_start_year,
                                                          year__lte=self.postpone_end_year):
             try:
-                postponed_egy = duplicate_education_group_year(
-                    education_group_year, academic_year, self.dict_initial_egy, self.hops_form.data
-                )
+                # hops is not relevant for a mini-training
+                if education_group_year.is_mini_training():
+                    postponed_egy = duplicate_education_group_year(
+                        education_group_year, academic_year, self.dict_initial_egy
+                    )
+                else:
+                    postponed_egy = duplicate_education_group_year(
+                        education_group_year, academic_year, self.dict_initial_egy, self.hops_form.data
+                    )
                 self.education_group_year_postponed.append(postponed_egy)
 
             except ConsistencyError as e:

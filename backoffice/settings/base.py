@@ -199,6 +199,10 @@ EMAIL_HOST = os.environ.get('EMAIL_HOST', 'localhost')
 EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 25))
 SEND_BROKEN_LINK_EMAILS = os.environ.get('SEND_BROKEN_LINK_EMAILS', 'True').lower() == 'true'
 INTERNAL_EMAIL_SUFFIX = os.environ.get('INTERNAL_EMAIL_SUFFIX', 'osis.org')
+MAIL_SENDER_CLASSES = os.environ.get(
+    'MAIL_SENDER_CLASSES',
+    'osis_common.messaging.mail_sender_classes.MessageHistorySender'
+).split()
 
 # Authentication settings
 LOGIN_URL = os.environ.get('LOGIN_URL', reverse_lazy('login'))
@@ -266,6 +270,7 @@ CKEDITOR_CONFIGS = {
         'extraAllowedContent': 'div(reddot_*,contacts_*)',
         'extraPlugins': ','.join(['reddot', 'pastefromword']),
         'stylesSet': REDDOT_STYLES,
+        'coreStyles_italic': {'element': 'i', 'overrides': 'em'},
         'toolbar': 'Custom',
         'toolbar_Custom': [
             {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
@@ -281,6 +286,7 @@ CKEDITOR_CONFIGS = {
         'allowedContent': True,
         'extraAllowedContent': 'div(reddot_*,contacts_*)',
         'extraPlugins': ','.join(['reddot', 'pastefromword']),
+        'coreStyles_italic': {'element': 'i', 'overrides': 'em'},
         'toolbar': 'Custom',
         'toolbar_Custom': [
             {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
@@ -302,6 +308,7 @@ CKEDITOR_CONFIGS = {
     },
     'minimal': {
         'toolbar': 'Custom',
+        'coreStyles_italic': {'element': 'i', 'overrides': 'em'},
         'toolbar_Custom': [
             {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
             ['Bold', 'Italic', 'Underline'],
@@ -311,6 +318,7 @@ CKEDITOR_CONFIGS = {
     },
     'minimal_plus_headers': {
         'toolbar': 'Custom',
+        'coreStyles_italic': {'element': 'i', 'overrides': 'em'},
         'toolbar_Custom': [
             {'name': 'clipboard', 'items': ['PasteFromWord', '-', 'Undo', 'Redo']},
             ['Format', 'Styles'],
@@ -388,6 +396,8 @@ ESB_AUTHORIZATION = os.environ.get('ESB_AUTHORIZATION')
 # TODO: rename to ESB_STUDENT_ENDPOINT
 ESB_STUDENT_API = os.environ.get('ESB_STUDENT_API')
 ESB_REFRESH_PEDAGOGY_ENDPOINT = os.environ.get('ESB_REFRESH_PEDAGOGY_ENDPOINT')
+ESB_REFRESH_COMMON_PEDAGOGY_ENDPOINT = os.environ.get('ESB_REFRESH_COMMON_PEDAGOGY_ENDPOINT')
+ESB_REFRESH_COMMON_ADMISSION_ENDPOINT = os.environ.get('ESB_REFRESH_COMMON_ADMISSION_ENDPOINT')
 
 RELEASE_TAG = os.environ.get('RELEASE_TAG')
 

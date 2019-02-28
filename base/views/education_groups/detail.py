@@ -23,6 +23,7 @@
 #    see http://www.gnu.org/licenses/.
 #
 ##############################################################################
+import itertools
 import json
 from collections import namedtuple
 
@@ -178,11 +179,9 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
 
     def show_general_information(self):
         return not self.object.acronym.startswith('common-') and \
-               self.is_general_info_and_condition_admission_in_display_range()
-
-    def show_skills_and_achievements(self):
-        return not self.object.is_common and self.object.education_group_type.category != GROUP and \
-               self.is_general_info_and_condition_admission_in_display_range()
+               self.is_general_info_and_condition_admission_in_display_range() and \
+               (self.object.education_group_type.category != GROUP or
+                self.object.education_group_type.name == GroupType.COMMON_CORE.name)
 
     def show_administrative(self):
         return self.object.education_group_type.category == "TRAINING" and \
@@ -197,8 +196,14 @@ class EducationGroupGenericDetailView(PermissionRequiredMixin, DetailView):
         return not self.object.is_common
 
     def show_admission_conditions(self):
-        return not self.object.is_main_common and not self.is_intro_offer and \
-               self.is_general_info_and_condition_admission_in_display_range()
+        # @TODO: Need to refactor after business clarification
+        return not self.object.is_main_common and \
+               self.object.education_group_type.name in itertools.chain(TrainingType.with_admission_condition(),
+                                                                        MiniTrainingType.with_admission_condition()) \
+               and self.is_general_info_and_condition_admission_in_display_range()
+
+    def show_skills_and_achievements(self):
+        return self.show_admission_conditions() and not self.object.is_common
 
     def is_general_info_and_condition_admission_in_display_range(self):
         return MIN_YEAR_TO_DISPLAY_GENERAL_INFO_AND_ADMISSION_CONDITION <= self.object.academic_year.year < \
@@ -342,7 +347,7 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
             elif selector == 'common':
                 translations = self._get_common_selector(common_education_group_year, label, user_language)
 
-            if translations:
+            if translations and translations not in records:
                 records.append(translations)
 
         return records
@@ -361,6 +366,10 @@ class EducationGroupGeneralInformation(EducationGroupGenericDetailView):
         return translations
 
     def get_content_translations_for_label(self, education_group_year, label, user_language, type):
+        # FIX ME: Change contacts ==> contact_intro in sections
+        if label == CONTACTS_KEY:
+            label = CONTACT_INTRO_KEY
+
         # fetch the translation for the current user
         translated_label = TranslatedTextLabel.objects.filter(text_label__entity=entity_name.OFFER_YEAR,
                                                               text_label__label=label,
@@ -490,10 +499,6 @@ class EducationGroupContent(EducationGroupGenericDetailView):
                 When(child_branch__isnull=False, then=F("child_branch__partial_acronym")),
                 default=None
             ),
-            title=Case(
-                When(child_leaf__isnull=False, then=F("child_leaf__specific_title")),
-                When(child_branch__isnull=False, then=F("child_branch__title")),
-            ),
             child_id=Case(
                 When(child_leaf__isnull=False, then=F("child_leaf__id")),
                 When(child_branch__isnull=False, then=F("child_branch__id")),
@@ -524,8 +529,6 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
         acronym = self.object.acronym.lower()
         is_common = acronym.startswith('common-')
         is_specific = not is_common
-        is_minor = self.object.is_minor
-        is_deepening = self.object.is_deepening
         is_bachelor = self.object.is_bachelor
 
         is_master = acronym.endswith(('2m', '2m1'))
@@ -554,7 +557,7 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
                 'is_master': is_master,
                 'show_components_for_agreg': is_aggregation,
                 'show_components_for_agreg_and_mc': is_aggregation or is_mc,
-                'show_free_text': (is_specific and (is_master or is_aggregation or is_mc)) or is_minor or is_deepening,
+                'show_free_text': self._show_free_text()
             },
             'admission_condition': admission_condition,
             'common_conditions': common_conditions,
@@ -566,6 +569,12 @@ class EducationGroupYearAdmissionCondition(EducationGroupGenericDetailView):
         })
 
         return context
+
+    def _show_free_text(self):
+        return not self.object.is_common and self.object.education_group_type.name in itertools.chain(
+            TrainingType.with_admission_condition(),
+            MiniTrainingType.with_admission_condition()
+        )
 
 
 def get_appropriate_common_admission_condition(edy):
