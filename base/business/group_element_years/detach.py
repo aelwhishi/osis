@@ -60,9 +60,6 @@ class DetachEducationGroupYearStrategy(DetachStrategy):
             TrainingType.PGRM_MASTER_120.name, TrainingType.PGRM_MASTER_180_240.name
         ])
 
-    def get_parents_finality(self):
-        return self._parents.filter(education_group_type__name__in=TrainingType.finality_types())
-
     def _get_options_to_detach(self):
         options_to_detach = EducationGroupHierarchy(root=self.education_group_year).get_option_list()
         if self.education_group_year.education_group_type.name == MiniTrainingType.OPTION.name:
@@ -71,8 +68,7 @@ class DetachEducationGroupYearStrategy(DetachStrategy):
 
     def is_valid(self):
         management.check_authorized_relationship(self.parent, self.link, to_delete=True)
-        if self._get_options_to_detach() and self.get_parents_program_master().exists() \
-                and not self.get_parents_finality().exists():
+        if self._get_options_to_detach() and self.get_parents_program_master().exists():
             self._check_detatch_options_rules()
         return True
 
@@ -86,14 +82,17 @@ class DetachEducationGroupYearStrategy(DetachStrategy):
         errors = []
         for master_2m in self.get_parents_program_master():
             master_2m_tree = EducationGroupHierarchy(root=master_2m)
-            master_2m_options = Counter(master_2m_tree.get_option_list()) - Counter(options_to_detach)
+
+            options_to_check = Counter(options_to_detach)
+            options_to_check.subtract(Counter(master_2m_tree.get_option_list()))
+            options_to_check = [obj for obj, count in options_to_check.items() if count >= 0]
 
             finality_list = [elem.child for elem in master_2m_tree.to_list(flat=True)
                              if isinstance(elem.child, EducationGroupYear)
                              and elem.child.education_group_type.name in TrainingType.finality_types()]
             for finality in finality_list:
                 mandatory_options = EducationGroupHierarchy(root=finality).get_option_list()
-                missing_options = set(mandatory_options) - set(master_2m_options.elements())
+                missing_options = set(options_to_check) & set(mandatory_options)
 
                 if missing_options:
                     errors.append(
