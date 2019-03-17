@@ -25,6 +25,7 @@
 ##############################################################################
 import logging
 import subprocess
+import os
 
 from django.conf import settings
 from django.contrib import messages
@@ -84,10 +85,13 @@ def common_context_processor(request):
         sentry_dns = ''
     release_tag = settings.RELEASE_TAG if hasattr(settings, 'RELEASE_TAG') else None
 
+    branch_name = os.environ.get('BRANCH_NAME', 'local')
+
     context = {'installed_apps': settings.INSTALLED_APPS,
                'environment': env,
                'sentry_dns': sentry_dns,
-               'release_tag': release_tag}
+               'release_tag': release_tag,
+               'branch_name': branch_name}
     _check_notice(request, context)
     return context
 
