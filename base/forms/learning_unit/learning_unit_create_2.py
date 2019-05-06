@@ -33,16 +33,16 @@ from django.utils.translation import ugettext_lazy as _
 from base.forms.learning_unit.edition_volume import SimplifiedVolumeManagementForm
 from base.forms.learning_unit.entity_form import EntityContainerBaseForm
 from base.forms.learning_unit.learning_unit_create import LearningUnitModelForm, LearningUnitYearModelForm, \
-    LearningContainerModelForm, LearningContainerYearModelForm
+    LearningContainerModelForm, LearningContainerYearModelForm, ExternalLearningUnitModelForm
 from base.models import academic_year
 from base.models.academic_year import MAX_ACADEMIC_YEAR_FACULTY, MAX_ACADEMIC_YEAR_CENTRAL, AcademicYear
 from base.models.campus import Campus
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY
+from base.models.enums.proposal_type import ProposalType
 from base.models.learning_component_year import LearningComponentYear
 from base.models.learning_unit_year import LearningUnitYear
 from reference.models import language
-from base.models.enums.proposal_type import ProposalType
 
 FULL_READ_ONLY_FIELDS = {"acronym", "academic_year", "container_type"}
 FULL_PROPOSAL_READ_ONLY_FIELDS = {"academic_year", "container_type"}
@@ -78,7 +78,8 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
         LearningContainerModelForm,
         LearningContainerYearModelForm,
         EntityContainerBaseForm,
-        SimplifiedVolumeManagementForm
+        SimplifiedVolumeManagementForm,
+        ExternalLearningUnitModelForm
     ]
 
     forms = OrderedDict()
@@ -173,7 +174,8 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
             'learning_unit_year_form': self.learning_unit_year_form,
             'learning_container_year_form': self.learning_container_year_form,
             'entity_container_form': self.entity_container_form,
-            'simplified_volume_management_form': self.simplified_volume_management_form
+            'simplified_volume_management_form': self.simplified_volume_management_form,
+            'learning_unit_external_form': self.learning_unit_external_form
         }
 
     def _validate_no_empty_title(self, common_title):
@@ -207,6 +209,10 @@ class LearningUnitBaseForm(metaclass=ABCMeta):
     @property
     def simplified_volume_management_form(self):
         return self.forms.get(SimplifiedVolumeManagementForm)
+
+    @property
+    def learning_unit_external_form(self):
+        return self.forms[ExternalLearningUnitModelForm]
 
     def __iter__(self):
         """Yields the forms in the order they should be rendered"""
@@ -294,7 +300,8 @@ class FullForm(LearningUnitBaseForm):
                     learning_unit_year=self.instance
                 ) if self.instance else LearningComponentYear.objects.none(),
                 'person': self.person
-            }
+            },
+            ExternalLearningUnitModelForm: self._build_instance_data_external_learning_unit(data) if self.instance.is_external_with_co_graduation() else {'data': data, 'person': self.person}
 
         }
 
@@ -322,6 +329,13 @@ class FullForm(LearningUnitBaseForm):
             } if not self.instance else None,
             'person': self.person,
             'subtype': self.subtype
+        }
+
+    def _build_instance_data_external_learning_unit(self, data):
+        return {
+            'data': data,
+            'instance': self.instance and self.instance.externallearningunityear,
+            'person': self.person
         }
 
     def is_valid(self):

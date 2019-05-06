@@ -116,7 +116,7 @@ def update_learning_unit(request, learning_unit_year_id):
         learning_unit_instance=learning_unit_year.learning_unit,
         learning_unit_full_instance=learning_unit_full_instance,
         data=request.POST or None,
-        external=learning_unit_year.is_external(),
+        external=learning_unit_year.is_external() and not learning_unit_year.is_external_with_co_graduation(),
     )
 
     if postponement_form.is_valid():
@@ -128,7 +128,7 @@ def update_learning_unit(request, learning_unit_year_id):
     context["learning_unit_year"] = learning_unit_year
     context["is_update"] = True
 
-    if learning_unit_year.is_external():
+    if learning_unit_year.is_external() and not learning_unit_year.is_external_with_co_graduation():
         template = "learning_unit/external/update.html"
     else:
         template = 'learning_unit/simple/update.html'

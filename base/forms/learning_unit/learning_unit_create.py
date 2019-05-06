@@ -26,22 +26,24 @@
 import re
 
 from django import forms
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from base.forms.common import STEP_HALF_INTEGER
+from base.forms.learning_unit.entity_form import EntitiesVersionChoiceField
 from base.forms.utils.acronym_field import AcronymField, PartimAcronymField, split_acronym
 from base.forms.utils.choice_field import add_blank
+from base.models import entity_version
 from base.models.campus import find_main_campuses
 from base.models.enums import learning_unit_year_subtypes
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_FOR_FACULTY, EXTERNAL
 from base.models.enums.learning_container_year_types import LEARNING_CONTAINER_YEAR_TYPES_WITHOUT_EXTERNAL, INTERNSHIP
 from base.models.enums.learning_unit_external_sites import LearningUnitExternalSite
+from base.models.external_learning_unit_year import ExternalLearningUnitYear
 from base.models.learning_container import LearningContainer
 from base.models.learning_container_year import LearningContainerYear
 from base.models.learning_unit import LearningUnit, REGEX_BY_SUBTYPE
 from base.models.learning_unit_year import LearningUnitYear, MAXIMUM_CREDITS
 from reference.models.language import find_all_languages
-from django.core.exceptions import ValidationError
 
 CRUCIAL_YEAR_FOR_CREDITS_VALIDATION = 2018
 
@@ -75,6 +77,45 @@ class LearningContainerModelForm(forms.ModelForm):
     class Meta:
         model = LearningContainer
         fields = ()
+
+
+class ExternalLearningUnitModelForm(forms.ModelForm):
+    requesting_entity = EntitiesVersionChoiceField(queryset=entity_version.EntityVersion.objects.none(), label=_('Requesting entity'))
+    entity_version = None
+
+    def __init__(self, data, person, *args, **kwargs):
+        self.person = person
+
+        super().__init__(data, *args, **kwargs)
+        self.instance.author = person
+        self.fields['requesting_entity'].queryset = self.person.find_main_entities_version
+        self.fields['co_graduation'].initial = True
+        self.fields['co_graduation'].disabled = True
+        self.fields['mobility'].disabled = True
+
+        if self.instance.id and hasattr(self.instance, 'requesting_entity'):
+            self.initial['requesting_entity'] = entity_version.get_last_version(self.instance.requesting_entity)
+
+    class Meta:
+        model = ExternalLearningUnitYear
+        fields = ('external_acronym', 'external_credits', 'url', 'requesting_entity', 'co_graduation', 'mobility')
+        widgets = {
+            'external_credits': forms.TextInput(),
+        }
+
+    def post_clean(self, start_date):
+        entity = self.cleaned_data.get('requesting_entity')
+        if not entity:
+            return True
+
+        entity_v = entity_version.get_by_entity_and_date(entity, start_date)
+        if not entity_v:
+            self.add_error('requesting_entity', _("The linked entity does not exist at the start date of the "
+                                                  "academic year linked to this learning unit"))
+        else:
+            self.entity_version = entity_v
+
+        return not self.errors
 
 
 class LearningUnitYearModelForm(forms.ModelForm):
